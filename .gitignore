@@ -1,0 +1,10 @@
+# 공개 저장소입니다. 비밀 키는 절대 올리지 마세요.
+# (service_role 키, 토스 시크릿 키, Supabase 토큰, GitHub 토큰 등)
+.env
+.env.*
+*.key
+*.pem
+supabase/
+
+.DS_Store
+Thumbs.db
