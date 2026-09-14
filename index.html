@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>지원금 찾기 · 소상공인 지원사업 매칭</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header" id="header"></header>
+
+  <main>
+    <section class="section">
+      <div class="inner fade">
+        <p class="eyebrow">소상공인 지원사업 · 무상지원금</p>
+        <h1 class="headline">받을 수 있는 지원금,<br>놓치지 마세요.</h1>
+        <p class="sub">조건 몇 가지만 알려주시면<br>나에게 맞는 지원사업을 찾아드려요.</p>
+        <div class="btn-wrap">
+          <a class="btn btn-primary" href="find.html">내게 맞는 지원사업 찾기</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section gray" id="today" hidden>
+      <div class="inner">
+        <p class="eyebrow">오늘 가능한 지원금</p>
+        <h2 class="title" id="today-title">오늘의 추천</h2>
+        <div class="cards" id="today-list"></div>
+        <p class="empty" id="today-empty" hidden>
+          아직 추천이 없어요.<br>조건을 입력하면 매일 아침 맞는 지원금을 골라드려요.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script>
+    (async () => {
+      const user = await renderHeader();
+      if (!user) return;
+
+      document.getElementById("today").hidden = false;
+
+      const { data } = await sb
+        .from("daily_matches")
+        .select("programs(id, title, agency, apply_end, url)")
+        .eq("user_id", user.id)
+        .eq("match_date", todayKST());
+
+      const list = document.getElementById("today-list");
+      const items = (data || []).map(row => row.programs).filter(Boolean);
+
+      if (items.length === 0) {
+        document.getElementById("today-empty").hidden = false;
+        return;
+      }
+
+      document.getElementById("today-title").textContent = `오늘 가능한 지원금 ${items.length}건`;
+
+      items.forEach(p => {
+        const card = document.createElement("a");
+        card.className = "card";
+        card.href = p.url || "#";
+        card.target = "_blank";
+        card.rel = "noopener";
+
+        const title = document.createElement("p");
+        title.className = "card-title";
+        title.textContent = p.title;
+
+        const meta = document.createElement("p");
+        meta.className = "card-meta";
+        meta.textContent = [p.agency, p.apply_end ? `~ ${p.apply_end} 마감` : "상시"].filter(Boolean).join(" · ");
+
+        card.append(title, meta);
+        list.append(card);
+      });
+    })();
+  </script>
+</body>
+</html>
