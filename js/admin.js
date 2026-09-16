@@ -92,7 +92,8 @@ function condText(m) {
   const years = m.founded_on
     ? `${Math.max(0, new Date(todayKST()).getFullYear() - new Date(m.founded_on).getFullYear())}년차`
     : null;
-  const parts = [m.region_sido, m.industry, m.company_size, years, m.revenue_range].filter(Boolean);
+  const parts = [m.region_sido, m.industry, m.company_size, years, m.revenue_range,
+    m.does_export ? "수출" : null, m.does_online_sales ? "온라인판매" : null].filter(Boolean);
   return parts.length ? parts.join(" · ") : "아직 입력 안 함";
 }
 

@@ -19,6 +19,24 @@ const STEPS = [
       "운수업", "농림어업", "문화콘텐츠업", "전문서비스업", "기타서비스업"].map(v => ({ label: v, value: v })),
   },
   {
+    key: "export",
+    question: "해외로 물건이나 서비스를 팔고 계신가요?",
+    hint: "수출 실적이 있으면 '네'를 골라주세요.",
+    options: [
+      { label: "네, 수출하고 있어요", value: true },
+      { label: "아니요", value: false },
+    ],
+  },
+  {
+    key: "online_sales",
+    question: "온라인으로 판매하고 계신가요?",
+    hint: "스마트스토어, 쿠팡, 자사몰 등이에요.",
+    options: [
+      { label: "네, 온라인으로 팔아요", value: true },
+      { label: "아니요", value: false },
+    ],
+  },
+  {
     key: "company_size",
     question: "기업 규모가 어떻게 되나요?",
     hint: "",
@@ -264,6 +282,8 @@ async function renderResultFoot(cond) {
     company_size: cond.company_size ?? null,
     revenue_range: answers.revenue ? answers.revenue.label : null,
     certifications: cond.certifications ?? null,
+    does_export: cond.export ?? null,
+    does_online_sales: cond.online_sales ?? null,
     updated_at: new Date().toISOString(),
   };
   if (founded !== undefined) row.founded_on = founded;
