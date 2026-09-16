@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>관리자 · 지원E</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header" id="header"></header>
+
+  <main>
+    <!-- 관리자 로그인 -->
+    <section class="section" id="login-box" hidden>
+      <div class="inner step">
+        <p class="eyebrow">관리자</p>
+        <h1 class="title">관리자 로그인</h1>
+        <form class="btn-wrap" id="login-form">
+          <input class="input" id="email" type="email" placeholder="이메일" autocomplete="username" required>
+          <input class="input" id="password" type="password" placeholder="비밀번호" autocomplete="current-password" required>
+          <button class="btn btn-primary" type="submit">로그인</button>
+        </form>
+        <p class="notice" id="login-notice"></p>
+      </div>
+    </section>
+
+    <!-- 관리자 화면 -->
+    <div id="dash" hidden>
+      <section class="section">
+        <div class="inner">
+          <p class="eyebrow">관리자</p>
+          <h1 class="title">한눈에 보기</h1>
+          <div class="stats" id="stat-members"></div>
+          <div class="stats" id="stat-programs"></div>
+        </div>
+      </section>
+
+      <section class="section gray">
+        <div class="inner">
+          <h2 class="title">회원 조건 분포</h2>
+          <p class="sub">회원들이 입력한 조건이에요.</p>
+          <div class="bars" id="bars"></div>
+          <p class="empty" id="bars-empty" hidden>아직 조건을 입력한 회원이 없어요.</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="inner">
+          <h2 class="title">회원 목록</h2>
+          <p class="sub">최근에 가입한 순서로 50명까지 보여드려요.</p>
+          <div class="table-wrap">
+            <table class="data" id="members"></table>
+          </div>
+        </div>
+      </section>
+
+      <section class="section gray">
+        <div class="inner">
+          <h2 class="title">공고 수집 현황</h2>
+          <p class="sub">사이트마다 가장 최근에 모은 결과예요.</p>
+          <div class="table-wrap">
+            <table class="data" id="crawl"></table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <footer class="footer" id="footer"></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/admin.js"></script>
+  <script>renderFooter();</script>
+</body>
+</html>
