@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>정책자금 일정 · 지원E</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header" id="header"></header>
+
+  <main>
+    <section class="section">
+      <div class="inner">
+        <p class="eyebrow">정책자금</p>
+        <h1 class="title">언제 신청할 수 있나요?</h1>
+        <p class="sub">달마다 접수하는 정책자금 일정을 모았어요.</p>
+
+        <div class="month-nav">
+          <button class="month-btn" id="prev" type="button" aria-label="이전 달">←</button>
+          <p class="month-now" id="month">2026년 9월</p>
+          <button class="month-btn" id="next" type="button" aria-label="다음 달">→</button>
+        </div>
+
+        <div class="cards one" id="list"></div>
+        <p class="empty" id="empty" hidden>이번 달에 접수하는 정책자금이 없어요.</p>
+      </div>
+    </section>
+
+    <section class="section gray">
+      <div class="inner">
+        <p class="eyebrow">기간 없이 언제든</p>
+        <h2 class="title" id="always-title">상시 접수 정책자금</h2>
+        <div class="cards one" id="always-list"></div>
+        <p class="notice" id="always-note"></p>
+      </div>
+    </section>
+  </main>
+  <footer class="footer" id="footer"></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/schedule.js"></script>
+  <script>renderFooter();</script>
+</body>
+</html>

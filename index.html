@@ -17,6 +17,7 @@
         <p class="sub">조건 몇 가지만 알려주시면<br>나에게 맞는 지원사업을 찾아드려요.</p>
         <div class="btn-wrap">
           <a class="btn btn-primary" href="find.html">내게 맞는 지원사업 찾기</a>
+          <a class="btn btn-white" href="schedule.html">정책자금 일정 보기</a>
         </div>
       </div>
     </section>
@@ -25,12 +26,14 @@
       <div class="inner">
         <p class="eyebrow">오늘 가능한 지원금</p>
         <h2 class="title" id="today-title">오늘의 추천</h2>
-        <div class="cards" id="today-list"></div>
-        <p class="empty" id="today-empty" hidden>
-          아직 추천이 없어요.<br>조건을 입력하면 매일 아침 맞는 지원금을 골라드려요.
-        </p>
+        <div class="cards one" id="today-list"></div>
+        <p class="empty" id="today-empty" hidden></p>
+        <div class="btn-wrap" id="today-foot" hidden>
+          <a class="btn btn-primary" href="find.html">내 조건 입력하기</a>
+        </div>
       </div>
     </section>
+
   </main>
   <footer class="footer" id="footer"></footer>
 
@@ -44,6 +47,25 @@
       if (!user) return;
 
       document.getElementById("today").hidden = false;
+      const title = document.getElementById("today-title");
+      const empty = document.getElementById("today-empty");
+      const foot = document.getElementById("today-foot");
+
+      // 조건을 입력했는지 먼저 확인
+      const { data: me } = await sb
+        .from("profiles")
+        .select("region_sido, industry, company_size, founded_on, revenue_range")
+        .eq("id", user.id)
+        .single();
+
+      const hasCond = me && Object.values(me).some(v => v !== null);
+      if (!hasCond) {
+        title.textContent = "조건부터 알려주세요";
+        empty.innerHTML = "조건을 입력하면 매일 아침<br>맞는 지원금을 골라드려요.";
+        empty.hidden = false;
+        foot.hidden = false;
+        return;
+      }
 
       const { data } = await sb
         .from("daily_matches")
@@ -51,32 +73,33 @@
         .eq("user_id", user.id)
         .eq("match_date", todayKST());
 
-      const list = document.getElementById("today-list");
       const items = (data || []).map(row => row.programs).filter(Boolean);
 
       if (items.length === 0) {
-        document.getElementById("today-empty").hidden = false;
+        empty.innerHTML = "오늘은 새로 고른 지원금이 없어요.<br>내일 아침에 다시 확인해 주세요.";
+        empty.hidden = false;
         return;
       }
 
-      document.getElementById("today-title").textContent = `오늘 가능한 지원금 ${items.length}건`;
+      title.textContent = `오늘 가능한 지원금 ${items.length}건`;
+      const list = document.getElementById("today-list");
 
       items.forEach(p => {
         const card = document.createElement("a");
-        card.className = "card";
+        card.className = "card card-line";
         card.href = p.url || "#";
         card.target = "_blank";
         card.rel = "noopener";
 
-        const title = document.createElement("p");
-        title.className = "card-title";
-        title.textContent = p.title;
+        const t = document.createElement("p");
+        t.className = "card-title";
+        t.textContent = p.title;
 
         const meta = document.createElement("p");
         meta.className = "card-meta";
         meta.textContent = [p.agency, p.apply_end ? `~ ${p.apply_end} 마감` : "상시"].filter(Boolean).join(" · ");
 
-        card.append(title, meta);
+        card.append(t, meta);
         list.append(card);
       });
     })();
