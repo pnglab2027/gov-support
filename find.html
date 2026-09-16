@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>내게 맞는 지원사업 찾기 · 지원금 찾기</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header" id="header"></header>
+
+  <main>
+    <!-- 질문 화면 -->
+    <section class="section" id="ask">
+      <div class="step">
+        <p class="progress" id="progress"></p>
+        <h1 class="question" id="question"></h1>
+        <p class="hint" id="hint"></p>
+        <div class="options" id="options"></div>
+        <div class="step-foot">
+          <button class="btn btn-primary" id="confirm" hidden></button>
+          <button class="link-btn" id="skip">잘 모르겠어요 · 건너뛰기</button>
+          <button class="link-btn" id="back" hidden>← 이전 질문</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 건수 화면 -->
+    <section class="section" id="count" hidden>
+      <div class="step fade">
+        <p class="count-num" id="count-num">0</p>
+        <p class="count-msg" id="count-msg"></p>
+        <div class="step-foot">
+          <button class="btn btn-primary" id="next">다음</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 결과 화면 -->
+    <section class="section gray" id="result" hidden>
+      <div class="inner">
+        <div class="result-head">
+          <p class="eyebrow">내 조건에 맞는 지원사업</p>
+          <h2 class="title" id="result-title"></h2>
+          <p class="hint" id="result-note"></p>
+        </div>
+        <div class="cards one" id="result-list"></div>
+        <p class="empty" id="result-empty" hidden>
+          조건에 맞는 공고를 찾지 못했어요.<br>조건을 바꿔서 다시 찾아보세요.
+        </p>
+        <div class="btn-wrap" id="result-foot"></div>
+        <p class="notice" id="result-notice"></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/find.js"></script>
+</body>
+</html>
