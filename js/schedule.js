@@ -10,6 +10,9 @@ let month = now.getMonth(); // 0 ~ 11
 const pad = n => String(n).padStart(2, "0");
 const dayText = d => d ? d.replace(/-/g, ".").slice(2) : "";
 
+// 빠르게 여러 번 누르면 늦게 온 옛 결과가 섞이지 않게 번호로 구분
+let reqId = 0;
+
 function statusBadge(status) {
   const span = document.createElement("span");
   span.className = `badge badge-${status}`;
@@ -40,6 +43,7 @@ function card(p) {
 }
 
 async function renderMonth() {
+  const my = ++reqId;
   const start = `${year}-${pad(month + 1)}-01`;
   const endDate = new Date(year, month + 1, 0);
   const end = `${year}-${pad(month + 1)}-${pad(endDate.getDate())}`;
@@ -54,6 +58,8 @@ async function renderMonth() {
     .select("id, title, agency, apply_start, apply_end, url, status")
     .eq("category", "정책자금")
     .or(`and(apply_start.gte.${start},apply_start.lte.${end}),and(apply_end.gte.${start},apply_end.lte.${end})`);
+
+  if (my !== reqId) return; // 더 최근에 누른 달이 있으면 이 결과는 버림
 
   if (error) {
     el("empty").textContent = "일정을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.";
