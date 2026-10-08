@@ -16,6 +16,17 @@ function badge(status) {
   return span;
 }
 
+// 자금명이 앞에 또 나오면 빼고 기간만 보여주기 (원문은 그대로 보관)
+function periodText(row) {
+  if (!row.target || !row.period_text.startsWith(row.target)) return row.period_text;
+  const rest = row.period_text
+    .slice(row.target.length)
+    .replace(/^\s*(?:은|는)?\s*접수는\s*/, "")
+    .replace(/^\s*(?:은|는)\s*/, "")
+    .trim();
+  return rest || row.period_text;
+}
+
 function item(row) {
   const li = document.createElement("li");
   li.className = "sched-item";
@@ -38,7 +49,7 @@ function item(row) {
 
   const period = document.createElement("p");
   period.className = "sched-period";
-  period.textContent = row.period_text;
+  period.textContent = periodText(row);
   li.append(period);
 
   return li;
