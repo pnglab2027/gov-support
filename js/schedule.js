@@ -4,11 +4,13 @@
 
 renderHeader();
 
-const GROUPS = [
-  { source: "semas", category: "직접대출", institution: "소상공인시장진흥공단" },
-  { source: "semas", category: "대리대출", institution: "소상공인시장진흥공단" },
-  { source: "kosmes", category: "지역본지부", institution: "중소벤처기업진흥공단" },
-];
+// 소진공 두 가지(직접대출·대리대출)는 PC 에서 한 섹션에 나란히 보여준다
+const SEMAS = {
+  source: "semas",
+  institution: "소상공인시장진흥공단",
+  categories: ["직접대출", "대리대출"],
+};
+const KOSMES = { source: "kosmes", category: "지역본지부", institution: "중소벤처기업진흥공단" };
 
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -67,6 +69,7 @@ function kosmesTable(rows) {
     months.forEach(month => {
       const found = schedules.find(r => r.target === area && r.label === month);
       const td = el("td");
+      td.dataset.label = month;
       if (found) {
         td.append(el("p", "cell-period", found.period_text));
         if (found.status) td.append(badge(found.status));
@@ -83,17 +86,14 @@ function kosmesTable(rows) {
   return wrap;
 }
 
-function section(group, rows, index) {
-  const sec = el("section", index % 2 === 1 ? "section gray" : "section");
-  const inner = el("div", "inner");
-
-  inner.append(el("p", "eyebrow", group.institution));
-  inner.append(el("h2", "title", group.category));
+// 이미지 한 장 (소진공) — 누르면 원문으로
+function imageCard(category, rows) {
+  const card = el("div", "fund-card");
+  card.append(el("p", "fund-card-title", category));
 
   const image = rows.find(r => r.kind === "이미지" && r.image_url);
 
   if (image) {
-    // 기관 안내 이미지 그대로
     const link = el("a", "sched-figure");
     link.href = rows[0].source_url;
     link.target = "_blank";
@@ -103,31 +103,71 @@ function section(group, rows, index) {
     img.src = image.image_url;
     img.alt = image.period_text;
     img.loading = "lazy";
-
     // 이미지를 못 불러오면 글 목록으로 대체
     img.onerror = () => {
       link.remove();
-      inner.insertBefore(textList(rows), inner.querySelector(".sched-src"));
+      card.append(textList(rows));
     };
 
     link.append(img);
-    inner.append(link);
-  } else if (group.source === "kosmes") {
-    inner.append(kosmesTable(rows));
-    rows.filter(r => r.kind === "안내")
-      .forEach(r => inner.append(el("p", "sched-note", r.period_text)));
+    card.append(link);
   } else {
-    inner.append(textList(rows));
+    card.append(textList(rows));
   }
+  return card;
+}
 
-  const src = el("p", "sched-src");
-  const link = el("a", null, `${group.institution} 안내 보기`);
-  link.href = rows[0].source_url;
+function sourceLine(institution, row) {
+  const p = el("p", "sched-src");
+  const link = el("a", null, `${institution} 안내 보기`);
+  link.href = row.source_url;
   link.target = "_blank";
   link.rel = "noopener";
-  src.append(link, el("span", null, ` · 최종 확인 ${rows[0].collected_at.slice(0, 10)}`));
-  inner.append(src);
+  p.append(link, el("span", null, ` · 최종 확인 ${row.collected_at.slice(0, 10)}`));
+  return p;
+}
 
+// 소진공: 한 섹션 안에 직접대출·대리대출 나란히 (좁은 화면에서는 위아래로)
+function semasSection(data) {
+  const sec = el("section", "section");
+  const inner = el("div", "inner inner-wide");
+
+  inner.append(el("p", "eyebrow", SEMAS.institution));
+  inner.append(el("h2", "title", "소상공인 정책자금"));
+
+  const pair = el("div", "fund-pair");
+  let first = null;
+
+  for (const category of SEMAS.categories) {
+    const rows = data.filter(r => r.source === SEMAS.source && r.category === category);
+    if (rows.length === 0) continue;
+    first = first || rows[0];
+    pair.append(imageCard(category, rows));
+  }
+  if (!first) return null;
+
+  inner.append(pair);
+  inner.append(sourceLine(SEMAS.institution, first));
+  sec.append(inner);
+  return sec;
+}
+
+// 중진공: 지역 × 월 표
+function kosmesSection(data) {
+  const rows = data.filter(r => r.source === KOSMES.source && r.category === KOSMES.category);
+  if (rows.length === 0) return null;
+
+  const sec = el("section", "section gray");
+  const inner = el("div", "inner");
+
+  inner.append(el("p", "eyebrow", KOSMES.institution));
+  inner.append(el("h2", "title", "정책자금 신청 일정"));
+  inner.append(kosmesTable(rows));
+
+  rows.filter(r => r.kind === "안내")
+    .forEach(r => inner.append(el("p", "sched-note", r.period_text)));
+
+  inner.append(sourceLine(KOSMES.institution, rows[0]));
   sec.append(inner);
   return sec;
 }
@@ -145,10 +185,7 @@ function section(group, rows, index) {
     return;
   }
 
-  let index = 0;
-  for (const group of GROUPS) {
-    const rows = data.filter(r => r.source === group.source && r.category === group.category);
-    if (rows.length === 0) continue;
-    box.append(section(group, rows, index++));
-  }
+  [semasSection(data), kosmesSection(data)]
+    .filter(Boolean)
+    .forEach(sec => box.append(sec));
 })();

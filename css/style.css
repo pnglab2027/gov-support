@@ -201,19 +201,60 @@ table.data { width: 100%; border-collapse: collapse; font-size: 15px; text-align
   .bar-row { grid-template-columns: 120px 1fr 64px; }
 }
 
-/* 정책자금 일정: 기관 안내 이미지 그대로 */
-.sched-figure { display: block; max-width: 680px; margin: 28px auto 0; }
+/* 정책자금 일정 ─ 소진공: PC 는 가로 2열, 폰은 위아래 */
+.inner-wide { max-width: 1120px; margin: 0 auto; }
+
+.fund-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px;
+  margin-top: 32px;
+  align-items: start;
+}
+.fund-card { text-align: center; }
+.fund-card-title {
+  font-size: 19px; font-weight: 700; letter-spacing: -.02em; margin-bottom: 14px;
+}
+.sched-figure { display: block; }
 .sched-img {
   display: block; width: 100%; height: auto;
   border: 1px solid #e5e5e7; border-radius: 16px;
 }
 
-/* 정책자금 일정: 표 */
-.table-wrap { max-width: 680px; margin: 28px auto 0; overflow-x: auto; }
+/* 정책자금 일정 ─ 중진공 표 */
+.table-wrap { max-width: 760px; margin: 28px auto 0; }
 .sched-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 16px; }
 .sched-table th, .sched-table td {
-  padding: 14px 12px; border-bottom: 1px solid #e5e5e7; vertical-align: top;
+  padding: 14px 12px; border-bottom: 1px solid #e5e5e7; vertical-align: middle;
 }
 .sched-table thead th { background: var(--light); font-weight: 700; white-space: nowrap; }
 .sched-table .row-head { font-weight: 700; white-space: nowrap; }
-.sched-table .cell-period { font-weight: 600; color: var(--blue); margin-bottom: 6px; }
+.sched-table .cell-period {
+  font-weight: 600; color: var(--blue);
+  white-space: nowrap;            /* PC 에서 한 줄 유지 */
+}
+.sched-table td .badge { margin-top: 6px; }
+
+@media (max-width: 900px) {
+  .fund-pair { grid-template-columns: 1fr; gap: 36px; }
+}
+
+/* 폰: 표를 카드처럼 쌓아서 보여주기 */
+@media (max-width: 680px) {
+  .sched-table, .sched-table tbody, .sched-table tr, .sched-table td { display: block; width: 100%; }
+  .sched-table thead { display: none; }
+  .sched-table tr {
+    border: 1px solid #e5e5e7; border-radius: 14px;
+    padding: 6px 14px 14px; margin-bottom: 14px;
+  }
+  .sched-table .row-head {
+    display: block; padding: 14px 0 6px; border: 0;
+    font-size: 18px;
+  }
+  .sched-table td { padding: 10px 0 0; border: 0; }
+  .sched-table td::before {
+    content: attr(data-label);
+    display: block; font-size: 14px; color: var(--gray); margin-bottom: 4px;
+  }
+  .sched-table .cell-period { white-space: normal; font-size: 16px; }
+}
