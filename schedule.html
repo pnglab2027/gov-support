@@ -14,28 +14,19 @@
       <div class="inner">
         <p class="eyebrow">정책자금</p>
         <h1 class="title">언제 신청할 수 있나요?</h1>
-        <p class="sub">달마다 접수하는 정책자금 일정을 모았어요.</p>
-
-        <div class="month-nav">
-          <button class="month-btn" id="prev" type="button" aria-label="이전 달">←</button>
-          <p class="month-now" id="month">2026년 9월</p>
-          <button class="month-btn" id="next" type="button" aria-label="다음 달">→</button>
-        </div>
-
-        <div class="cards one" id="list"></div>
-        <p class="empty" id="empty" hidden>이번 달에 접수하는 정책자금이 없어요.</p>
+        <p class="sub">기관에서 안내하는 접수일정을 그대로 모았어요.</p>
       </div>
     </section>
 
-    <section class="section gray">
+    <div id="groups"></div>
+
+    <section class="section">
       <div class="inner">
-        <p class="eyebrow">기간 없이 언제든</p>
-        <h2 class="title" id="always-title">상시 접수 정책자금</h2>
-        <div class="cards one" id="always-list"></div>
-        <p class="notice" id="always-note"></p>
+        <p class="notice">일정은 기관 사정(예산 소진 등)에 따라 변경되거나 조기 마감될 수 있어요.<br>신청 전에 기관 안내를 꼭 확인해 주세요.</p>
       </div>
     </section>
   </main>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
   <script src="js/config.js"></script>
   <script src="js/common.js"></script>

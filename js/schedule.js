@@ -1,115 +1,117 @@
-// 정책자금 일정: 달마다 접수하는 공고 보여주기
+// 정책자금 일정: 기관이 안내하는 접수일정표를 그대로 보여주기
 
-const el = id => document.getElementById(id);
+renderHeader();
 
-// 한국시간 기준 이번 달
-const now = new Date(todayKST());
-let year = now.getFullYear();
-let month = now.getMonth(); // 0 ~ 11
+// 보여줄 순서
+const GROUPS = [
+  { source: "semas", category: "직접대출", institution: "소상공인시장진흥공단" },
+  { source: "semas", category: "대리대출", institution: "소상공인시장진흥공단" },
+  { source: "kosmes", category: "지역본지부", institution: "중소벤처기업진흥공단" },
+];
 
-const pad = n => String(n).padStart(2, "0");
-const dayText = d => d ? d.replace(/-/g, ".").slice(2) : "";
-
-// 빠르게 여러 번 누르면 늦게 온 옛 결과가 섞이지 않게 번호로 구분
-let reqId = 0;
-
-function statusBadge(status) {
+function badge(status) {
   const span = document.createElement("span");
   span.className = `badge badge-${status}`;
   span.textContent = status;
   return span;
 }
 
-function card(p) {
-  const a = document.createElement("a");
-  a.className = "card card-line";
-  a.href = p.url || "#";
-  a.target = "_blank";
-  a.rel = "noopener";
+function item(row) {
+  const li = document.createElement("li");
+  li.className = "sched-item";
 
-  const title = document.createElement("p");
-  title.className = "card-title";
-  title.textContent = p.title;
+  if (row.status) li.append(badge(row.status));
 
-  const meta = document.createElement("p");
-  meta.className = "card-meta";
-  const period = p.apply_start || p.apply_end
-    ? `${dayText(p.apply_start) || "?"} ~ ${dayText(p.apply_end) || "?"}`
-    : "상시 접수";
-  meta.textContent = [p.agency, period].filter(Boolean).join(" · ");
-
-  a.append(statusBadge(p.status), title, meta);
-  return a;
-}
-
-async function renderMonth() {
-  const my = ++reqId;
-  const start = `${year}-${pad(month + 1)}-01`;
-  const endDate = new Date(year, month + 1, 0);
-  const end = `${year}-${pad(month + 1)}-${pad(endDate.getDate())}`;
-
-  el("month").textContent = `${year}년 ${month + 1}월`;
-  el("list").innerHTML = "";
-  el("empty").hidden = true;
-
-  // 이번 달에 접수를 시작하거나 마감하는 공고
-  const { data, error } = await sb
-    .from("programs_view")
-    .select("id, title, agency, apply_start, apply_end, url, status")
-    .eq("category", "정책자금")
-    .or(`and(apply_start.gte.${start},apply_start.lte.${end}),and(apply_end.gte.${start},apply_end.lte.${end})`);
-
-  if (my !== reqId) return; // 더 최근에 누른 달이 있으면 이 결과는 버림
-
-  if (error) {
-    el("empty").textContent = "일정을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.";
-    el("empty").hidden = false;
-    return;
+  if (row.target) {
+    const name = document.createElement("p");
+    name.className = "sched-target";
+    name.textContent = row.target;
+    li.append(name);
   }
 
-  const items = (data || []).sort((a, b) =>
-    (a.apply_start || a.apply_end || "").localeCompare(b.apply_start || b.apply_end || ""));
-
-  if (items.length === 0) {
-    el("empty").hidden = false;
-    return;
+  if (row.label) {
+    const label = document.createElement("p");
+    label.className = "sched-label";
+    label.textContent = row.label;
+    li.append(label);
   }
-  items.forEach(p => el("list").append(card(p)));
+
+  const period = document.createElement("p");
+  period.className = "sched-period";
+  period.textContent = row.period_text;
+  li.append(period);
+
+  return li;
 }
 
-async function renderAlways() {
-  const { data, count } = await sb
-    .from("programs_view")
-    .select("id, title, agency, apply_start, apply_end, url, status", { count: "exact" })
-    .eq("category", "정책자금")
-    .is("apply_start", null)
-    .is("apply_end", null)
-    .order("title")
-    .limit(20);
-
-  const items = data || [];
-  el("always-title").textContent = `상시 접수 정책자금 ${(count ?? items.length).toLocaleString("ko-KR")}건`;
-  items.forEach(p => el("always-list").append(card(p)));
-
-  if ((count ?? 0) > items.length) {
-    el("always-note").textContent = `가나다 순으로 ${items.length}건을 먼저 보여드려요.`;
-  }
+function noteLine(row) {
+  const p = document.createElement("p");
+  p.className = "sched-note";
+  p.textContent = row.period_text;
+  return p;
 }
 
-el("prev").onclick = () => {
-  month -= 1;
-  if (month < 0) { month = 11; year -= 1; }
-  renderMonth();
-};
+function section(group, rows, index) {
+  const sec = document.createElement("section");
+  sec.className = index % 2 === 1 ? "section gray" : "section";
 
-el("next").onclick = () => {
-  month += 1;
-  if (month > 11) { month = 0; year += 1; }
-  renderMonth();
-};
+  const inner = document.createElement("div");
+  inner.className = "inner";
+
+  const eyebrow = document.createElement("p");
+  eyebrow.className = "eyebrow";
+  eyebrow.textContent = group.institution;
+
+  const title = document.createElement("h2");
+  title.className = "title";
+  title.textContent = group.category;
+
+  inner.append(eyebrow, title);
+
+  const list = document.createElement("ul");
+  list.className = "sched-list";
+  rows.filter(r => r.kind === "일정").forEach(r => list.append(item(r)));
+  inner.append(list);
+
+  rows.filter(r => r.kind === "안내").forEach(r => inner.append(noteLine(r)));
+
+  const src = document.createElement("p");
+  src.className = "sched-src";
+  const link = document.createElement("a");
+  link.href = rows[0].source_url;
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.textContent = `${group.institution} 안내 보기`;
+  src.append(link);
+  const checked = document.createElement("span");
+  checked.textContent = ` · 최종 확인 ${rows[0].collected_at.slice(0, 10)}`;
+  src.append(checked);
+  inner.append(src);
+
+  sec.append(inner);
+  return sec;
+}
 
 (async () => {
-  await renderHeader();
-  renderMonth();
-  renderAlways();
+  const box = document.getElementById("groups");
+
+  const { data, error } = await sb
+    .from("fund_schedules_view")
+    .select("source, category, kind, target, label, period_text, status, source_url, collected_at, sort_order")
+    .order("sort_order");
+
+  if (error || !data || data.length === 0) {
+    const p = document.createElement("p");
+    p.className = "empty";
+    p.textContent = "일정을 불러오지 못했어요. 잠시 후 다시 열어주세요.";
+    box.append(p);
+    return;
+  }
+
+  let index = 0;
+  for (const group of GROUPS) {
+    const rows = data.filter(r => r.source === group.source && r.category === group.category);
+    if (rows.length === 0) continue;
+    box.append(section(group, rows, index++));
+  }
 })();

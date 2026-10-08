@@ -152,18 +152,21 @@ a { color: inherit; text-decoration: none; }
 .footer a { color: var(--gray); text-decoration: underline; }
 
 /* 정책자금 일정 */
-.month-nav {
-  display: flex; align-items: center; justify-content: center; gap: 16px;
-  margin-top: 32px;
-}
-.month-btn {
-  min-width: 48px; min-height: 48px;
-  border: 1px solid #d2d2d7; border-radius: 14px;
-  background: var(--white); font: inherit; font-size: 20px; cursor: pointer;
-}
-.month-btn:active { transform: scale(.96); }
-.month-now { font-size: 22px; font-weight: 700; min-width: 140px; }
 .badge-마감 { background: #f2f2f4; color: #86868b; }
+.sched-list { list-style: none; margin: 28px auto 0; max-width: 680px; text-align: left; }
+.sched-item {
+  padding: 20px; margin-top: 12px;
+  border: 1px solid #e5e5ea; border-radius: 18px; background: var(--white);
+}
+.sched-target { font-size: 19px; font-weight: 700; line-height: 1.4; letter-spacing: -.02em; }
+.sched-label { margin-top: 6px; font-size: 15px; color: var(--gray); }
+.sched-period { margin-top: 8px; font-size: 17px; font-weight: 600; color: var(--blue); }
+.sched-note {
+  max-width: 680px; margin: 14px auto 0; text-align: left;
+  font-size: 15px; line-height: 1.6; color: var(--gray);
+}
+.sched-src { max-width: 680px; margin: 24px auto 0; text-align: left; font-size: 15px; color: var(--gray); }
+.sched-src a { color: var(--blue); text-decoration: underline; }
 
 /* 관리자 화면 */
 .input {
