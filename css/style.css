@@ -200,3 +200,20 @@ table.data { width: 100%; border-collapse: collapse; font-size: 15px; text-align
   .stats { grid-template-columns: repeat(4, 1fr); }
   .bar-row { grid-template-columns: 120px 1fr 64px; }
 }
+
+/* 정책자금 일정: 기관 안내 이미지 그대로 */
+.sched-figure { display: block; max-width: 680px; margin: 28px auto 0; }
+.sched-img {
+  display: block; width: 100%; height: auto;
+  border: 1px solid #e5e5e7; border-radius: 16px;
+}
+
+/* 정책자금 일정: 표 */
+.table-wrap { max-width: 680px; margin: 28px auto 0; overflow-x: auto; }
+.sched-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 16px; }
+.sched-table th, .sched-table td {
+  padding: 14px 12px; border-bottom: 1px solid #e5e5e7; vertical-align: top;
+}
+.sched-table thead th { background: var(--light); font-weight: 700; white-space: nowrap; }
+.sched-table .row-head { font-weight: 700; white-space: nowrap; }
+.sched-table .cell-period { font-weight: 600; color: var(--blue); margin-bottom: 6px; }

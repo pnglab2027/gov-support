@@ -1,22 +1,27 @@
-// 정책자금 일정: 기관이 안내하는 접수일정표를 그대로 보여주기
+// 정책자금 일정
+// - 소진공: 기관이 올린 안내 이미지를 그대로 보여준다 (못 불러오면 글 목록으로 대체)
+// - 중진공: 기관 안내와 같은 표로 보여준다
 
 renderHeader();
 
-// 보여줄 순서
 const GROUPS = [
   { source: "semas", category: "직접대출", institution: "소상공인시장진흥공단" },
   { source: "semas", category: "대리대출", institution: "소상공인시장진흥공단" },
   { source: "kosmes", category: "지역본지부", institution: "중소벤처기업진흥공단" },
 ];
 
-function badge(status) {
-  const span = document.createElement("span");
-  span.className = `badge badge-${status}`;
-  span.textContent = status;
-  return span;
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text) node.textContent = text;
+  return node;
 }
 
-// 자금명이 앞에 또 나오면 빼고 기간만 보여주기 (원문은 그대로 보관)
+function badge(status) {
+  return el("span", `badge badge-${status}`, status);
+}
+
+// 자금명이 앞에 또 나오면 빼고 기간만 (원문은 그대로 보관)
 function periodText(row) {
   if (!row.target || !row.period_text.startsWith(row.target)) return row.period_text;
   const rest = row.period_text
@@ -27,76 +32,100 @@ function periodText(row) {
   return rest || row.period_text;
 }
 
-function item(row) {
-  const li = document.createElement("li");
-  li.className = "sched-item";
-
-  if (row.status) li.append(badge(row.status));
-
-  if (row.target) {
-    const name = document.createElement("p");
-    name.className = "sched-target";
-    name.textContent = row.target;
-    li.append(name);
-  }
-
-  if (row.label) {
-    const label = document.createElement("p");
-    label.className = "sched-label";
-    label.textContent = row.label;
-    li.append(label);
-  }
-
-  const period = document.createElement("p");
-  period.className = "sched-period";
-  period.textContent = periodText(row);
-  li.append(period);
-
-  return li;
+// 글 목록 (이미지를 못 불러왔을 때 쓰는 대체 화면)
+function textList(rows) {
+  const list = el("ul", "sched-list");
+  rows.filter(r => r.kind === "일정").forEach(row => {
+    const li = el("li", "sched-item");
+    if (row.status) li.append(badge(row.status));
+    if (row.target) li.append(el("p", "sched-target", row.target));
+    li.append(el("p", "sched-period", periodText(row)));
+    list.append(li);
+  });
+  return list;
 }
 
-function noteLine(row) {
-  const p = document.createElement("p");
-  p.className = "sched-note";
-  p.textContent = row.period_text;
-  return p;
+// 중진공: 지역 × 월 표
+function kosmesTable(rows) {
+  const schedules = rows.filter(r => r.kind === "일정");
+  const areas = [...new Set(schedules.map(r => r.target))];
+  const months = [...new Set(schedules.map(r => r.label))];
+
+  const wrap = el("div", "table-wrap");
+  const table = el("table", "sched-table");
+
+  const thead = el("thead");
+  const headRow = el("tr");
+  headRow.append(el("th", null, "지역본지부"));
+  months.forEach(m => headRow.append(el("th", null, m)));
+  thead.append(headRow);
+
+  const tbody = el("tbody");
+  areas.forEach(area => {
+    const tr = el("tr");
+    tr.append(el("th", "row-head", area));
+    months.forEach(month => {
+      const found = schedules.find(r => r.target === area && r.label === month);
+      const td = el("td");
+      if (found) {
+        td.append(el("p", "cell-period", found.period_text));
+        if (found.status) td.append(badge(found.status));
+      } else {
+        td.textContent = "-";
+      }
+      tr.append(td);
+    });
+    tbody.append(tr);
+  });
+
+  table.append(thead, tbody);
+  wrap.append(table);
+  return wrap;
 }
 
 function section(group, rows, index) {
-  const sec = document.createElement("section");
-  sec.className = index % 2 === 1 ? "section gray" : "section";
+  const sec = el("section", index % 2 === 1 ? "section gray" : "section");
+  const inner = el("div", "inner");
 
-  const inner = document.createElement("div");
-  inner.className = "inner";
+  inner.append(el("p", "eyebrow", group.institution));
+  inner.append(el("h2", "title", group.category));
 
-  const eyebrow = document.createElement("p");
-  eyebrow.className = "eyebrow";
-  eyebrow.textContent = group.institution;
+  const image = rows.find(r => r.kind === "이미지" && r.image_url);
 
-  const title = document.createElement("h2");
-  title.className = "title";
-  title.textContent = group.category;
+  if (image) {
+    // 기관 안내 이미지 그대로
+    const link = el("a", "sched-figure");
+    link.href = rows[0].source_url;
+    link.target = "_blank";
+    link.rel = "noopener";
 
-  inner.append(eyebrow, title);
+    const img = el("img", "sched-img");
+    img.src = image.image_url;
+    img.alt = image.period_text;
+    img.loading = "lazy";
 
-  const list = document.createElement("ul");
-  list.className = "sched-list";
-  rows.filter(r => r.kind === "일정").forEach(r => list.append(item(r)));
-  inner.append(list);
+    // 이미지를 못 불러오면 글 목록으로 대체
+    img.onerror = () => {
+      link.remove();
+      inner.insertBefore(textList(rows), inner.querySelector(".sched-src"));
+    };
 
-  rows.filter(r => r.kind === "안내").forEach(r => inner.append(noteLine(r)));
+    link.append(img);
+    inner.append(link);
+  } else if (group.source === "kosmes") {
+    inner.append(kosmesTable(rows));
+    rows.filter(r => r.kind === "안내")
+      .forEach(r => inner.append(el("p", "sched-note", r.period_text)));
+  } else {
+    inner.append(textList(rows));
+  }
 
-  const src = document.createElement("p");
-  src.className = "sched-src";
-  const link = document.createElement("a");
+  const src = el("p", "sched-src");
+  const link = el("a", null, `${group.institution} 안내 보기`);
   link.href = rows[0].source_url;
   link.target = "_blank";
   link.rel = "noopener";
-  link.textContent = `${group.institution} 안내 보기`;
-  src.append(link);
-  const checked = document.createElement("span");
-  checked.textContent = ` · 최종 확인 ${rows[0].collected_at.slice(0, 10)}`;
-  src.append(checked);
+  src.append(link, el("span", null, ` · 최종 확인 ${rows[0].collected_at.slice(0, 10)}`));
   inner.append(src);
 
   sec.append(inner);
@@ -108,14 +137,11 @@ function section(group, rows, index) {
 
   const { data, error } = await sb
     .from("fund_schedules_view")
-    .select("source, category, kind, target, label, period_text, status, source_url, collected_at, sort_order")
+    .select("source, category, kind, target, label, period_text, image_url, status, source_url, collected_at, sort_order")
     .order("sort_order");
 
   if (error || !data || data.length === 0) {
-    const p = document.createElement("p");
-    p.className = "empty";
-    p.textContent = "일정을 불러오지 못했어요. 잠시 후 다시 열어주세요.";
-    box.append(p);
+    box.append(el("p", "empty", "일정을 불러오지 못했어요. 잠시 후 다시 열어주세요."));
     return;
   }
 
