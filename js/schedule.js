@@ -119,11 +119,7 @@ function imageCard(category, rows) {
 
 function sourceLine(institution, row) {
   const p = el("p", "sched-src");
-  const link = el("a", null, `${institution} 안내 보기`);
-  link.href = row.source_url;
-  link.target = "_blank";
-  link.rel = "noopener";
-  p.append(link, el("span", null, ` · 최종 확인 ${row.collected_at.slice(0, 10)}`));
+  p.append(el("span", null, `최종 확인 ${row.collected_at.slice(0, 10)}`));
   return p;
 }
 
