@@ -133,7 +133,6 @@ function semasSection(data) {
   const inner = el("div", "inner inner-wide");
 
   inner.append(el("p", "inst", SEMAS.institution));
-  inner.append(el("h2", "sec-title", "소상공인 정책자금"));
 
   const pair = el("div", "fund-pair");
   let first = null;
@@ -161,7 +160,6 @@ function kosmesSection(data) {
   const inner = el("div", "inner");
 
   inner.append(el("p", "inst", KOSMES.institution));
-  inner.append(el("h2", "sec-title", "정책자금 신청 일정"));
   inner.append(kosmesTable(rows));
 
   rows.filter(r => r.kind === "안내")

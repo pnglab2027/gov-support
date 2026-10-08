@@ -272,7 +272,7 @@ table.data { width: 100%; border-collapse: collapse; font-size: 15px; text-align
 /* 기관명: 크게 + 빛나는 강조 */
 .inst {
   display: inline-block;
-  font-size: 22px; font-weight: 800; letter-spacing: -.02em;
+  font-size: 27px; font-weight: 800; letter-spacing: -.02em;
   background: linear-gradient(100deg, #0071e3 0%, #00c6ff 45%, #0071e3 90%);
   background-size: 220% 100%;
   -webkit-background-clip: text; background-clip: text;
@@ -288,16 +288,12 @@ table.data { width: 100%; border-collapse: collapse; font-size: 15px; text-align
   .inst { animation: none; }
 }
 
-/* 섹션 제목: 머리 제목(headline)보다 작게 해서 구분 */
-.sec-title {
-  margin-top: 6px;
-  font-size: 27px; font-weight: 800; line-height: 1.25; letter-spacing: -.02em;
-  color: var(--black);
-}
+/* 머리 제목: 너무 크지 않게 */
+.page-schedule .headline { font-size: 34px; }
 
 @media (max-width: 680px) {
   .page-schedule .hero { padding: 40px 20px 20px; }
   .page-schedule .section { padding: 28px 20px; }
-  .inst { font-size: 19px; }
-  .sec-title { font-size: 23px; }
+  .inst { font-size: 23px; }
+  .page-schedule .headline { font-size: 28px; }
 }
